@@ -1,6 +1,7 @@
 (ns curly.core
   (:require [criterium.core :as criterium])
-  (:import  [curly RemoveCurly])
+  (:import  [curly RemoveCurly]
+            [java.util.regex Pattern])
   (:gen-class))
 
 (set! *warn-on-reflection* true)
@@ -40,11 +41,13 @@
 
 (defn remove-curlied-regex
   [^String text]
-  (loop [t text]
-    (let [filtered (.replaceAll t "\\{[^\\{\\}.]*\\}" "")]
-      (if (= filtered t)
-        filtered
-        (recur filtered)))))
+  (let [pattern (Pattern/compile "\\{[^\\{\\}.]*\\}")]
+    (loop [t text]
+      (let [filtered (-> (.matcher pattern t)
+                         (.replaceAll ""))]
+        (if (= filtered t)
+          filtered
+          (recur filtered))))))
 
 (defn -main
   [& args]
