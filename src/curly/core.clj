@@ -38,6 +38,14 @@
   [^String text]
   (RemoveCurly/removeCurlies text))
 
+(defn remove-curlied-regex
+  [^String text]
+  (loop [t text]
+    (let [filtered (.replaceAll t "\\{[^\\{\\}.]*\\}" "")]
+      (if (= filtered t)
+        filtered
+        (recur filtered)))))
+
 (defn -main
   [& args]
   (let [test-string "Here is {{a string containing}} some {curly} braces."]
@@ -52,5 +60,9 @@
     
     (println "\n\n---> Benchmarking: Java implementation")
     (criterium/with-progress-reporting
-      (criterium/quick-bench (remove-curlied-java test-string)))))
+      (criterium/quick-bench (remove-curlied-java test-string)))
+
+    (println "\n\n---> Benchmarking: Regex implementation")
+    (criterium/with-progress-reporting
+      (criterium/quick-bench (remove-curlied-regex test-string)))))
 
